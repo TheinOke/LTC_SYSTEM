@@ -6,118 +6,175 @@ This document defines the entities, attributes, and relationships for the LTCS, 
 
 ```mermaid
 erDiagram
-    EMPLOYEE ||--o| DRIVER_PROFILE : "extends"
-    EMPLOYEE ||--o{ TRANSPORTATION_REQUEST : "requests"
-    EMPLOYEE ||--o{ INSPECTION_LOG : "inspects"
-    
-    VEHICLE ||--o{ MAINTENANCE_SCHEDULE : "undergoes"
-    VEHICLE ||--o{ TRIP_ASSIGNMENT : "assigned_to"
-    VEHICLE ||--o{ INSPECTION_LOG : "checked_in"
-    VEHICLE ||--o{ OPERATION_DAILY_SHEET : "reports"
 
-    TRANSPORTATION_REQUEST ||--|{ ROUTE_STOP : "contains"
-    TRANSPORTATION_REQUEST ||--o{ TRIP_ASSIGNMENT : "fulfilled_by"
+%% =========================
+%% CORE IDENTITY
+%% =========================
 
-    TRIP_ASSIGNMENT ||--|{ ASSIGNMENT_DRIVER : "staffed_by"
-    DRIVER_PROFILE ||--o{ ASSIGNMENT_DRIVER : "works_on"
-    DRIVER_PROFILE ||--o{ LEAVE_REQUEST : "takes"
+EMPLOYEE ||--|| USER_ACCOUNT : has_login
+USER_ACCOUNT ||--o{ USER_ROLE : assigned
+ROLE ||--o{ USER_ROLE : contains
+ROLE ||--o{ ROLE_PERMISSION : grants
+PERMISSION ||--o{ ROLE_PERMISSION : included_in
 
-    EMPLOYEE {
-        uuid id PK
-        string full_name
-        enum role
-        string email UK
-        string phone_number
-        boolean Disabled
-    }
+EMPLOYEE ||--o| EMPLOYEE_DRIVER_PROFILE : driver_extension
 
-    DRIVER_PROFILE {
-        uuid employee_id PK, FK
-        string license_number
-        date license_expiry
-        float daily_working_hours
-        float weekly_overtime_hours
-        boolean Disabled
-    }
+EMPLOYEE ||--o{ TRANSPORTATION_REQUEST : requests
+EMPLOYEE ||--o{ INSPECTION_LOG : performs_inspection
+EMPLOYEE ||--o{ LEAVE_REQUEST : takes_leave
 
-    VEHICLE {
-        uuid id PK
-        string plate_number UK
-        string model
-        integer passenger_capacity
-        enum status
-        boolean Disabled
-    }
+%% =========================
+%% TRANSPORT DOMAIN
+%% =========================
 
-    MAINTENANCE_SCHEDULE {
-        uuid id PK
-        uuid vehicle_id FK
-        date scheduled_date
-        string service_type
-        enum status
-        boolean Disabled
-    }
+TRANSPORTATION_REQUEST ||--|{ ROUTE_STOP : contains
+TRANSPORTATION_REQUEST ||--o{ TRIP_ASSIGNMENT : generates
 
-    TRANSPORTATION_REQUEST {
-        uuid id PK
-        uuid requester_id FK
-        integer passenger_count
-        enum trip_type
-        enum status
-        boolean Disabled
-    }
+TRIP_ASSIGNMENT ||--o{ TRIP_VEHICLE : uses
+VEHICLE ||--o{ TRIP_VEHICLE : assigned_to
 
-    ROUTE_STOP {
-        uuid id PK
-        uuid request_id FK
-        string location_name
-        integer sequence_number
-        boolean Disabled
-    }
+TRIP_ASSIGNMENT ||--o{ ASSIGNMENT_DRIVER : staffed_by
+EMPLOYEE_DRIVER_PROFILE ||--o{ ASSIGNMENT_DRIVER : assigned_driver
 
-    TRIP_ASSIGNMENT {
-        uuid id PK
-        uuid request_id FK
-        uuid vehicle_id FK
-        datetime scheduled_start
-        datetime scheduled_end
-        boolean Disabled
-    }
+VEHICLE ||--o{ MAINTENANCE_SCHEDULE : undergoes
+VEHICLE ||--o{ INSPECTION_LOG : checked
+VEHICLE ||--o{ OPERATION_DAILY_SHEET : reports
 
-    ASSIGNMENT_DRIVER {
-        uuid assignment_id PK, FK
-        uuid driver_id PK, FK
-        boolean Disabled
-    }
+%% =========================
+%% ENTITIES
+%% =========================
 
-    INSPECTION_LOG {
-        uuid id PK
-        uuid vehicle_id FK
-        uuid inspector_id FK
-        enum inspection_type
-        enum status
-        json checklist_results
-        boolean Disabled
-    }
+EMPLOYEE {
+    uuid id PK
+    string full_name
+    string email UK
+    string phone_number
+    int disabled  "0/1 soft delete"
+}
 
-    OPERATION_DAILY_SHEET {
-        uuid id PK
-        uuid vehicle_id FK
-        date date
-        float fuel_liters
-        float total_distance
-        boolean Disabled
-    }
+USER_ACCOUNT {
+    uuid id PK
+    uuid employee_id FK
+    string username UK
+    string password_hash
+    int is_active
+    int disabled
+}
 
-    LEAVE_REQUEST {
-        uuid id PK
-        uuid driver_id FK
-        enum leave_type
-        datetime start_date
-        datetime end_date
-        enum status
-        boolean Disabled
-    }
+ROLE {
+    uuid id PK
+    string role_code UK
+    string role_name
+    int disabled
+}
+
+PERMISSION {
+    uuid id PK
+    string permission_code UK
+    string description
+    int disabled
+}
+
+USER_ROLE {
+    uuid user_id PK,FK
+    uuid role_id PK,FK
+    int disabled
+}
+
+ROLE_PERMISSION {
+    uuid role_id PK,FK
+    uuid permission_id PK,FK
+    int disabled
+}
+
+EMPLOYEE_DRIVER_PROFILE {
+    uuid employee_id PK,FK
+    string license_number
+    date license_expiry
+    float daily_working_hours
+    float weekly_overtime_hours
+    int disabled
+}
+
+VEHICLE {
+    uuid id PK
+    string plate_number UK
+    string model
+    int passenger_capacity
+    string vehicle_status
+    int disabled
+}
+
+TRANSPORTATION_REQUEST {
+    uuid id PK
+    uuid requester_id FK
+    int passenger_count
+    datetime requested_departure_datetime
+    datetime requested_return_datetime
+    string status
+    int disabled
+}
+
+ROUTE_STOP {
+    uuid id PK
+    uuid request_id FK
+    string location_name
+    int sequence_number
+    string route_type
+    int disabled
+}
+
+TRIP_ASSIGNMENT {
+    uuid id PK
+    uuid request_id FK
+    datetime scheduled_start
+    datetime scheduled_end
+    int disabled
+}
+
+TRIP_VEHICLE {
+    uuid trip_assignment_id PK,FK
+    uuid vehicle_id PK,FK
+}
+
+ASSIGNMENT_DRIVER {
+    uuid trip_assignment_id PK,FK
+    uuid driver_employee_id PK,FK
+}
+
+INSPECTION_LOG {
+    uuid id PK
+    uuid vehicle_id FK
+    uuid inspector_id FK
+    json checklist_results
+    int disabled
+}
+
+MAINTENANCE_SCHEDULE {
+    uuid id PK
+    uuid vehicle_id FK
+    date scheduled_date
+    string service_type
+    int disabled
+}
+
+OPERATION_DAILY_SHEET {
+    uuid id PK
+    uuid vehicle_id FK
+    date operation_date
+    float fuel_liters
+    float total_distance
+    int disabled
+}
+
+LEAVE_REQUEST {
+    uuid id PK
+    uuid employee_id FK
+    datetime start_date
+    datetime end_date
+    string status
+    int disabled
+}
 ```
 
 ---
