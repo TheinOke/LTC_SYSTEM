@@ -1,0 +1,6 @@
+.gemini
+.env
+Backend/transport_db
+node_modules/
+vendor/
+.DS_Store
