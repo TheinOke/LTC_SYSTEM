@@ -45,7 +45,7 @@ VEHICLE ||--o{ OPERATION_DAILY_SHEET : reports
 %% =========================
 
 EMPLOYEE {
-    uuid id PK
+    id id PK
     string full_name
     string email UK
     string phone_number
@@ -53,8 +53,8 @@ EMPLOYEE {
 }
 
 USER_ACCOUNT {
-    uuid id PK
-    uuid employee_id FK
+    id id PK
+    bigint employee_id FK
     string username UK
     string password_hash
     int is_active
@@ -62,33 +62,33 @@ USER_ACCOUNT {
 }
 
 ROLE {
-    uuid id PK
+    id id PK
     string role_code UK
     string role_name
     int disabled
 }
 
 PERMISSION {
-    uuid id PK
+    id id PK
     string permission_code UK
     string description
     int disabled
 }
 
 USER_ROLE {
-    uuid user_id PK,FK
-    uuid role_id PK,FK
+    bigint user_id PK,FK
+    bigint role_id PK,FK
     int disabled
 }
 
 ROLE_PERMISSION {
-    uuid role_id PK,FK
-    uuid permission_id PK,FK
+    bigint role_id PK,FK
+    bigint permission_id PK,FK
     int disabled
 }
 
 EMPLOYEE_DRIVER_PROFILE {
-    uuid employee_id PK,FK
+    bigint employee_id PK,FK
     string license_number
     date license_expiry
     float daily_working_hours
@@ -97,7 +97,7 @@ EMPLOYEE_DRIVER_PROFILE {
 }
 
 VEHICLE {
-    uuid id PK
+    id id PK
     string plate_number UK
     string model
     int passenger_capacity
@@ -106,8 +106,8 @@ VEHICLE {
 }
 
 TRANSPORTATION_REQUEST {
-    uuid id PK
-    uuid requester_id FK
+    id id PK
+    bigint requester_id FK
     int passenger_count
     datetime requested_departure_datetime
     datetime requested_return_datetime
@@ -116,8 +116,8 @@ TRANSPORTATION_REQUEST {
 }
 
 ROUTE_STOP {
-    uuid id PK
-    uuid request_id FK
+    id id PK
+    bigint request_id FK
     string location_name
     int sequence_number
     string route_type
@@ -125,42 +125,42 @@ ROUTE_STOP {
 }
 
 TRIP_ASSIGNMENT {
-    uuid id PK
-    uuid request_id FK
+    id id PK
+    bigint request_id FK
     datetime scheduled_start
     datetime scheduled_end
     int disabled
 }
 
 TRIP_VEHICLE {
-    uuid trip_assignment_id PK,FK
-    uuid vehicle_id PK,FK
+    bigint trip_assignment_id PK,FK
+    bigint vehicle_id PK,FK
 }
 
 ASSIGNMENT_DRIVER {
-    uuid trip_assignment_id PK,FK
-    uuid driver_employee_id PK,FK
+    bigint trip_assignment_id PK,FK
+    bigint driver_employee_id PK,FK
 }
 
 INSPECTION_LOG {
-    uuid id PK
-    uuid vehicle_id FK
-    uuid inspector_id FK
+    id id PK
+    bigint vehicle_id FK
+    bigint inspector_id FK
     json checklist_results
     int disabled
 }
 
 MAINTENANCE_SCHEDULE {
-    uuid id PK
-    uuid vehicle_id FK
+    id id PK
+    bigint vehicle_id FK
     date scheduled_date
     string service_type
     int disabled
 }
 
 OPERATION_DAILY_SHEET {
-    uuid id PK
-    uuid vehicle_id FK
+    id id PK
+    bigint vehicle_id FK
     date operation_date
     float fuel_liters
     float total_distance
@@ -168,8 +168,8 @@ OPERATION_DAILY_SHEET {
 }
 
 LEAVE_REQUEST {
-    uuid id PK
-    uuid employee_id FK
+    id id PK
+    bigint employee_id FK
     datetime start_date
     datetime end_date
     string status
@@ -184,17 +184,17 @@ Tracks all users and their specialized roles, particularly drivers.
 
 ### Entity: `Employee`
 Base entity for all system users.
-- `id` (UUID, PK): Unique identifier.
+- `id` (id, PK): Unique identifier.
 - `full_name` (String): Full name of the employee.
 - `role` (Enum): `MANAGER`, `COORDINATOR`, `STAFF`, `FLEET_ADMIN`, `DRIVER`.
 - `email` (String, Unique): Work email address.
 - `phone_number` (String): Contact number.
-- `department_id` (UUID, FK): Link to department (optional).
+- `department_id` (id, FK): Link to department (optional).
 - `Disabled` (Boolean): Soft-delete flag.
 
 ### Entity: `DriverProfile`
 Extension of the Employee entity for driver-specific metrics.
-- `employee_id` (UUID, FK, PK): Link to `Employee`.
+- `employee_id` (id, FK, PK): Link to `Employee`.
 - `license_number` (String): Driver's license ID.
 - `license_expiry` (Date): Expiration date of the license.
 - `total_annual_leave` (Integer): Total allowed leave days per year.
@@ -210,7 +210,7 @@ Extension of the Employee entity for driver-specific metrics.
 Manages the vehicles and their maintenance schedules.
 
 ### Entity: `Vehicle`
-- `id` (UUID, PK): Unique identifier.
+- `id` (id, PK): Unique identifier.
 - `plate_number` (String, Unique): Vehicle registration number.
 - `model` (String): Car model and year.
 - `color` (String): Exterior color.
@@ -222,8 +222,8 @@ Manages the vehicles and their maintenance schedules.
 
 ### Entity: `MaintenanceSchedule`
 Simplified scheduling for vehicle servicing.
-- `id` (UUID, PK): Unique identifier.
-- `vehicle_id` (UUID, FK): Link to `Vehicle`.
+- `id` (id, PK): Unique identifier.
+- `vehicle_id` (id, FK): Link to `Vehicle`.
 - `scheduled_date` (Date): Planned date for servicing.
 - `service_type` (String): e.g., "Oil Change", "Brake Check".
 - `status` (Enum): `SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED`.
@@ -235,8 +235,8 @@ Simplified scheduling for vehicle servicing.
 Handles the lifecycle of a user's trip request.
 
 ### Entity: `TransportationRequest`
-- `id` (UUID, PK): Unique identifier.
-- `requester_id` (UUID, FK): Employee who made the request.
+- `id` (id, PK): Unique identifier.
+- `requester_id` (id, FK): Employee who made the request.
 - `passenger_count` (Integer): Number of people traveling.
 - `trip_type` (Enum): `SHORT_TRIP`, `LONG_TRIP`.
 - `request_date` (DateTime): When the request was submitted.
@@ -247,8 +247,8 @@ Handles the lifecycle of a user's trip request.
 
 ### Entity: `RouteStop`
 Individual legs of a trip.
-- `id` (UUID, PK): Unique identifier.
-- `request_id` (UUID, FK): Link to `TransportationRequest`.
+- `id` (id, PK): Unique identifier.
+- `request_id` (id, FK): Link to `TransportationRequest`.
 - `location_name` (String): Name of the destination/stop.
 - `sequence_number` (Integer): Order of the stop.
 - `latitude` (Float): Geographic coordinate.
@@ -263,9 +263,9 @@ Bridges requests to physical resources and ensures safety compliance.
 
 ### Entity: `TripAssignment`
 Links a request to a specific vehicle.
-- `id` (UUID, PK): Unique identifier.
-- `request_id` (UUID, FK): Link to `TransportationRequest`.
-- `vehicle_id` (UUID, FK): Link to `Vehicle`.
+- `id` (id, PK): Unique identifier.
+- `request_id` (id, FK): Link to `TransportationRequest`.
+- `vehicle_id` (id, FK): Link to `Vehicle`.
 - `scheduled_start` (DateTime): Assigned departure time.
 - `scheduled_end` (DateTime): Assigned return time.
 - `status` (Enum): `ASSIGNED`, `IN_PROGRESS`, `COMPLETED`.
@@ -273,15 +273,15 @@ Links a request to a specific vehicle.
 
 ### Entity: `AssignmentDriver` (Join Table)
 Handles the "Two drivers for long trips" rule.
-- `assignment_id` (UUID, FK): Link to `TripAssignment`.
-- `driver_id` (UUID, FK): Link to `DriverProfile`.
+- `assignment_id` (id, FK): Link to `TripAssignment`.
+- `driver_id` (id, FK): Link to `DriverProfile`.
 - `Disabled` (Boolean): Soft-delete flag.
 
 ### Entity: `InspectionLog`
 Results of vehicle checks.
-- `id` (UUID, PK): Unique identifier.
-- `vehicle_id` (UUID, FK): Link to `Vehicle`.
-- `inspector_id` (UUID, FK): Link to `Employee` (Fleet Admin or Driver).
+- `id` (id, PK): Unique identifier.
+- `vehicle_id` (id, FK): Link to `Vehicle`.
+- `inspector_id` (id, FK): Link to `Employee` (Fleet Admin or Driver).
 - `inspection_type` (Enum): `PRE_TRIP`, `POST_TRIP`, `DAILY`, `WEEKLY`, `MONTHLY`, `URGENT`.
 - `inspection_date` (DateTime): When the check occurred.
 - `status` (Enum): `PASSED`, `FAILED`.
@@ -291,8 +291,8 @@ Results of vehicle checks.
 
 ### Entity: `OperationDailySheet`
 Daily reporting for fuel and distance.
-- `id` (UUID, PK): Unique identifier.
-- `vehicle_id` (UUID, FK): Link to `Vehicle`.
+- `id` (id, PK): Unique identifier.
+- `vehicle_id` (id, FK): Link to `Vehicle`.
 - `date` (Date): Day of operation.
 - `fuel_liters` (Float): Amount of fuel added.
 - `refill_time` (Time): Time of refill.
@@ -307,8 +307,8 @@ Daily reporting for fuel and distance.
 Tracks driver availability.
 
 ### Entity: `LeaveRequest`
-- `id` (UUID, PK): Unique identifier.
-- `driver_id` (UUID, FK): Link to `DriverProfile`.
+- `id` (id, PK): Unique identifier.
+- `driver_id` (id, FK): Link to `DriverProfile`.
 - `leave_type` (Enum): `ANNUAL`, `SICK`, `EMERGENCY`.
 - `start_date` (DateTime): Start of leave.
 - `end_date` (DateTime): End of leave.

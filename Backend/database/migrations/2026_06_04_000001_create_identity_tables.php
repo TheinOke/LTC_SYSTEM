@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('full_name');
             $table->string('email')->unique();
             $table->string('phone_number')->nullable();
@@ -21,8 +21,8 @@ return new class extends Migration
         });
 
         Schema::create('user_accounts', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('employee_id')->constrained('employees')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
             $table->string('username')->unique();
             $table->string('password_hash');
             $table->boolean('is_active')->default(true);
@@ -31,7 +31,7 @@ return new class extends Migration
         });
 
         Schema::create('roles', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('role_code')->unique();
             $table->string('role_name');
             $table->boolean('disabled')->default(false);
@@ -39,7 +39,7 @@ return new class extends Migration
         });
 
         Schema::create('permissions', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('permission_code')->unique();
             $table->string('description')->nullable();
             $table->boolean('disabled')->default(false);
@@ -47,15 +47,15 @@ return new class extends Migration
         });
 
         Schema::create('user_roles', function (Blueprint $table) {
-            $table->foreignUuid('user_id')->constrained('user_accounts')->onDelete('cascade');
-            $table->foreignUuid('role_id')->constrained('roles')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('user_accounts')->onDelete('cascade');
+            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->boolean('disabled')->default(false);
             $table->primary(['user_id', 'role_id']);
         });
 
         Schema::create('role_permissions', function (Blueprint $table) {
-            $table->foreignUuid('role_id')->constrained('roles')->onDelete('cascade');
-            $table->foreignUuid('permission_id')->constrained('permissions')->onDelete('cascade');
+            $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            $table->foreignId('permission_id')->constrained('permissions')->onDelete('cascade');
             $table->boolean('disabled')->default(false);
             $table->primary(['role_id', 'permission_id']);
         });

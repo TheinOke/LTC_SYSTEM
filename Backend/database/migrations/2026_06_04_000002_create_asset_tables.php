@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employee_driver_profiles', function (Blueprint $table) {
-            $table->foreignUuid('employee_id')->primary()->constrained('employees')->onDelete('cascade');
+            $table->foreignId('employee_id')->primary()->constrained('employees')->onDelete('cascade');
             $table->string('license_number');
             $table->date('license_expiry');
             $table->float('daily_working_hours')->default(0);
@@ -22,7 +22,7 @@ return new class extends Migration
         });
 
         Schema::create('vehicles', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
             $table->string('plate_number')->unique();
             $table->string('model');
             $table->integer('passenger_capacity');
@@ -32,8 +32,8 @@ return new class extends Migration
         });
 
         Schema::create('maintenance_schedules', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
             $table->date('scheduled_date');
             $table->string('service_type');
             $table->boolean('disabled')->default(false);
@@ -41,8 +41,8 @@ return new class extends Migration
         });
 
         Schema::create('operation_daily_sheets', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
             $table->date('operation_date');
             $table->float('fuel_liters')->default(0);
             $table->float('total_distance')->default(0);

@@ -169,11 +169,13 @@ Total allow Leave
 
 ---
 
+
+
 ## 5. Implementation Roadmap
 - [x] Business Discovery & Rules Definition
 - [x] Workflow & Process Modeling
 - [x] Domain Model Design
-- [ ] Database Schema (ERD) & Migration Planning
+- [x] Database Schema (ERD) & Migration Planning
 - [ ] API Architecture Design
 - [ ] UI/UX Prototyping
 - [ ] Core Development

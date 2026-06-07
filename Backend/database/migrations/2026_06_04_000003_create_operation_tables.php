@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('transportation_requests', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('requester_id')->constrained('employees')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('requester_id')->constrained('employees')->onDelete('cascade');
             $table->integer('passenger_count');
             $table->dateTime('requested_departure_datetime');
             $table->dateTime('requested_return_datetime');
@@ -23,8 +23,8 @@ return new class extends Migration
         });
 
         Schema::create('route_stops', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('request_id')->constrained('transportation_requests')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('request_id')->constrained('transportation_requests')->onDelete('cascade');
             $table->string('location_name');
             $table->integer('sequence_number');
             $table->string('route_type');
@@ -33,8 +33,8 @@ return new class extends Migration
         });
 
         Schema::create('trip_assignments', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('request_id')->constrained('transportation_requests')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('request_id')->constrained('transportation_requests')->onDelete('cascade');
             $table->dateTime('scheduled_start');
             $table->dateTime('scheduled_end');
             $table->boolean('disabled')->default(false);
@@ -42,29 +42,29 @@ return new class extends Migration
         });
 
         Schema::create('trip_vehicles', function (Blueprint $table) {
-            $table->foreignUuid('trip_assignment_id')->constrained('trip_assignments')->onDelete('cascade');
-            $table->foreignUuid('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+            $table->foreignId('trip_assignment_id')->constrained('trip_assignments')->onDelete('cascade');
+            $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
             $table->primary(['trip_assignment_id', 'vehicle_id']);
         });
 
         Schema::create('assignment_drivers', function (Blueprint $table) {
-            $table->foreignUuid('trip_assignment_id')->constrained('trip_assignments')->onDelete('cascade');
-            $table->foreignUuid('driver_employee_id')->constrained('employee_driver_profiles', 'employee_id')->onDelete('cascade');
+            $table->foreignId('trip_assignment_id')->constrained('trip_assignments')->onDelete('cascade');
+            $table->foreignId('driver_employee_id')->constrained('employee_driver_profiles', 'employee_id')->onDelete('cascade');
             $table->primary(['trip_assignment_id', 'driver_employee_id']);
         });
 
         Schema::create('inspection_logs', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('vehicle_id')->constrained('vehicles')->onDelete('cascade');
-            $table->foreignUuid('inspector_id')->constrained('employees')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+            $table->foreignId('inspector_id')->constrained('employees')->onDelete('cascade');
             $table->json('checklist_results');
             $table->boolean('disabled')->default(false);
             $table->timestamps();
         });
 
         Schema::create('leave_requests', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('employee_id')->constrained('employees')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
             $table->string('status');
